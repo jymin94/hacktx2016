@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PushNote</title>
+
+    <!-- React -->
+    <script src="https://fb.me/react-15.3.0.min.js"></script>
+    <script src="https://fb.me/react-dom-15.3.0.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+    <!-- ReactFire -->
+    <script src="https://cdn.firebase.com/libs/reactfire/1.0.0/reactfire.min.js"></script>
+
+
+    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+    <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+
+
+    <!-- Initialize the Firebase SDK -->
+    
+		<script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
+		<script>
+		  // Initialize Firebase
+		  var config = {
+		    apiKey: "AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4",
+		    authDomain: "my-awesome-project-13077.firebaseapp.com",
+		    databaseURL: "https://my-awesome-project-13077.firebaseio.com",
+		    storageBucket: "my-awesome-project-13077.appspot.com",
+		    messagingSenderId: "199057337442"
+		  };
+		  firebase.initializeApp(config);
+		</script>
+
+    
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+    <nav class="#ef6c00 orange darken-3" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/login">Login</a></li>
+      </ul>
+
+      <a href="/login" data-activates="nav-mobile" class="button-collapse">Login</a>
+    </div>
+  </nav>
+  <div class="section no-pad-bot #ef6c00 orange darken-3" id="index-banner">
+    <div class="container ">
+      <br><br>
+      <h2 class="header center white-text">Real-Time Issue Tracker</h2>
+      <div class="row center white-text">
+        
+      </div>
+      <div class="row center">
+        <div id="card-id" class="card col s8 offset-s2">
+            <div class="card-content">
+              <h5 class="header light">Keep everybody up to date with issues</h5>
+              <div class="input-field col s12">
+		          <input id="pagename" type="text" class="validate">
+		          <label for="pagename" >Enter in page name</label>
+		        </div>
+              <div class="row center">
+		        <a href="/find/" id="find-button" class="btn-large waves-effect waves-light orange">Find The Page!</a>
+		      </div>
+            </div>
+          </div>
+      </div>
+      
+      <br><br>
+
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="section">
+
+      <!--   Icon Section   -->
+      <div class="row">
+        
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h5 class="center">Stay up to date</h5>
+
+            <p class="light">We keep users up to date with resolutions and organizers can make sure they fix issues in a timely matter.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h5 class="center">Make issues more noticeable</h5>
+
+            <p class="light">PushNote removes the need to spam phone calls and emails when issues arise at an event or establishment. Just post or upvote previously posted issues. The management behind it will receive notifications of urgence based on votes.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h5 class="center">Realtime!</h5>
+
+            <p class="light">All of these updates happen in realtime for fast responses.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <br><br>
+
+    <div class="section">
+
+    </div>
+  </div>
+
+  </body>
+  <script>
+		Materialize.fadeInImage('#card-id');
+  </script>
+</html>
