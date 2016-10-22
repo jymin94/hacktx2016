@@ -13,6 +13,7 @@ config = {
 app = Flask(__name__)
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
+db = firebase.database()
 
 @app.route("/")
 @app.route("/index")
@@ -26,12 +27,28 @@ def sign_up():
 	else:
 		email = request.form["email"]
 		password = request.form["password"]
+		pagename = request.form["pagename"]
 		try:
 			auth.create_user_with_email_and_password(email, password)
 		except requests.exceptions.HTTPError as e:
 			print(e)
 			# TODO process based on error
 			return "There was an error creating a user."
+		else:
+			user =  auth.sign_in_with_email_and_password(email, password)
+			if pagename not in db.child("pages").shallow().get().val():
+				newkey = '{}/welcome'.format(pagename)
+				print(newkey)
+				newpage = { newkey : {
+						"Welcome" : {
+							"count" : 1,
+							"admin_response": "Welcome... friends."
+						}
+					}
+				}
+				db.child("pages").set(newpage)
+			firebase.put('/admin', user['localId'], pagename)
+
 		return redirect('/')
 	return "ok" 
 
