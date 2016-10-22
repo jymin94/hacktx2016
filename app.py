@@ -37,17 +37,26 @@ def sign_up():
 		else:
 			user =  auth.sign_in_with_email_and_password(email, password)
 			if pagename not in db.child("pages").shallow().get().val():
-				newkey = '{}/welcome'.format(pagename)
-				print(newkey)
-				newpage = { newkey : {
-						"Welcome" : {
+				welcome = { "Welcome" : {
 							"count" : 1,
 							"admin_response": "Welcome... friends."
 						}
 					}
-				}
-				db.child("pages").set(newpage)
-			firebase.put('/admin', user['localId'], pagename)
+				newpage = dict()
+				newpage[pagename] = welcome
+				print(newpage)
+				# print(newkey)
+				# newpage = { newkey : {
+				# 		"Welcome" : {
+				# 			"count" : 1,
+				# 			"admin_response": "Welcome... friends."
+				# 		}
+				# 	}
+				# }
+				db.child("pages").child(str(pagename)).update(welcome);
+			newadmin = dict()
+			newadmin[user["localId"]] = pagename
+			db.child("admin").update(newadmin)
 
 		return redirect('/')
 	return "ok" 
@@ -61,6 +70,8 @@ def login():
 		password = request.form['password']
 		user =  auth.sign_in_with_email_and_password(email, password)
 		return redirect('/')
+
+# @app.route("/page/{page_id}")
 
 # TODO authentication check before changing database
 
