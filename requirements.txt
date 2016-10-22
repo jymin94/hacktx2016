@@ -1,0 +1,5 @@
+pip install requests==1.1.0
+pip install python-firebase
+pip install flask
+pip install pyrebase
+pip install requests

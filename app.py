@@ -10,7 +10,6 @@ config = {
 	"storageBucket" : "my-awesome-project-13077.appspot.com"
 }
 
-
 app = Flask(__name__)
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
@@ -32,19 +31,19 @@ def sign_up():
 		except requests.exceptions.HTTPError as e:
 			print(e)
 			# TODO process based on error
-			return "fucku"
+			return "There was an error creating a user."
 		return redirect('/')
 	return "ok" 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
 	if request.method == 'GET':
-		email = request.args.get('email')
-		print("HELLO" + email)
-		password = request.args.get('password')
-		print("BYE " + password)
+		return render_template('login.html')
+	else:
+		email = request.form['email']
+		password = request.form['password']
 		user =  auth.sign_in_with_email_and_password(email, password)
-		return user
+		return redirect('/')
 
 # TODO authentication check before changing database
 
