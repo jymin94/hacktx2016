@@ -1,0 +1,6 @@
+from flask_wtf import Form
+from wtforms import StringField, BooleanField
+from wtforms.validators import DataRequired
+
+class Signup(Form):
+	name = StringField("name", validators=[DataRequired()])
