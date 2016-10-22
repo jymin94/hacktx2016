@@ -1,6 +1,7 @@
 from firebase import firebase
 from flask import *
 import pyrebase
+import requests
 
 config = {
 	"apiKey" : 'AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4',
@@ -15,19 +16,24 @@ firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 
 @app.route("/")
+@app.route("/index")
 def hello():
 	return render_template('index.html')
 
 @app.route("/signup", methods=["GET", "POST"])
 def sign_up():
 	if request.method == 'GET':
-		return "render signup template"
+		return render_template('signup.html')
 	else:
 		email = request.form["email"]
 		password = request.form["password"]
-		auth.create_user_with_email_and_password(email, password)
-		user =  auth.sign_in_with_email_and_password(email, password)
-		return user
+		try:
+			auth.create_user_with_email_and_password(email, password)
+		except requests.exceptions.HTTPError as e:
+			print(e)
+			# TODO process based on error
+			return "fucku"
+		return redirect('/')
 	return "ok" 
 
 @app.route("/login", methods=["GET", "POST"])
