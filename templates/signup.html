@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PushNote</title>
+
+    <!-- React -->
+    <script src="https://fb.me/react-15.3.0.min.js"></script>
+    <script src="https://fb.me/react-dom-15.3.0.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+    <!-- ReactFire -->
+    <script src="https://cdn.firebase.com/libs/reactfire/1.0.0/reactfire.min.js"></script>
+
+
+    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+    <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+
+
+    <!-- Initialize the Firebase SDK -->
+    
+		<script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
+		<script>
+		  // Initialize Firebase
+		  var config = {
+		    apiKey: "AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4",
+		    authDomain: "my-awesome-project-13077.firebaseapp.com",
+		    databaseURL: "https://my-awesome-project-13077.firebaseio.com",
+		    storageBucket: "my-awesome-project-13077.appspot.com",
+		    messagingSenderId: "199057337442"
+		  };
+		  var app = firebase.initializeApp(config);
+
+      function createUser(){
+        var email = $("#id").val();
+        var password = $('#password').val();
+        var confirm_password = $('#confirm_password').val();
+        console.log("SUP AGAIn");
+        if (password == confirm_password){
+          app.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+            console.log("WASSUP");
+              // Handle Errors here.
+              var errorCode = error.code;
+              var errorMessage = error.message;
+            // ...
+          });
+      }
+      }
+
+		</script>
+
+    
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+    <nav class="#ef6c00 orange darken-3" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/signup">Signup</a></li>
+      </ul>
+
+      <a href="/login" data-activates="nav-mobile" class="button-collapse">Login</a>
+    </div>
+    </nav>
+    <div class="section #ef6c00 orange darken-3" id="index-banner">
+      <div class="container ">
+        <h3 class="header center white-text">Signup</h3>
+        <div class="row center white-text">
+          
+        </div>
+        <div class="row center">
+          <div id="card-id" class="card col s8 offset-s2">
+              <div class="card-content">
+                <form action="/signup" method="GET">
+                  <div class="input-field col s12">
+      		          <input id="username" type="text" name="email" required/>
+      		          <label for="email">Email</label>
+                  </div>
+                  <div class="input-field col s12">
+                    <input id="password" type="password" name="password" required/>
+                    <label for="password">Password</label>
+                  </div>
+                  <div class="input-field col s12">
+                    <input id="confirm_password" type="password" name="confirm_password" required/>
+                    <label for="confirm_password" >Confirm Password</label>
+    		          </div>
+                
+                <div class="row center">
+  		            <button class="btn-large waves-effect waves-light orange" type="submit">Register</button>
+  		          </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+      </div>
+   </div>
+
+  </body>
+  <script>
+		Materialize.fadeInImage('#card-id');
+  </script>
+</html>
