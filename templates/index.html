@@ -55,11 +55,20 @@
     <nav class="#ef6c00 orange darken-3" role="navigation">
     <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
       <ul class="right hide-on-med-and-down">
-        <li><a href="/login">Login</a></li>
+		{% if login == "Invalid" %}
+			<li><a href="/login">Login</a></li>
+	    {% else %}
+			<li><a href="/logout">Logout</a></li>
+	    {% endif %}
         <li><a href="/signup">Signup</a></li>
       </ul>
 
-      <a href="/login" data-activates="nav-mobile" class="button-collapse">Login</a>
+	  {% if login == "Invalid" %}
+		  <a href="/login" data-activates="nav-mobile" class="button-collapse">Login</a>
+	  {% else %}
+		  <a href="/logout" data-activates="nav-mobile" class="button-collapse">Logout</a>
+	  {% endif %}
+
     </div>
   </nav>
   <div class="section no-pad-bot #ef6c00 orange darken-3" id="index-banner">

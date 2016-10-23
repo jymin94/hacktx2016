@@ -47,11 +47,14 @@ def validate_user():
 @app.route("/")
 @app.route("/index")
 def hello():
+	login = "Invalid"
+	if validate_user():
+		login = "Valid"
 	pagename = request.args.get('pagename')
 	print(pagename)
 	if pagename:
 		return redirect("/pages/" + pagename)
-	return render_template('index.html')
+	return render_template('index.html', login=login)
 
 @app.route("/signup", methods=["GET", "POST"])
 def sign_up():
