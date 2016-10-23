@@ -120,7 +120,7 @@ def logout():
 
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
-	if validate_user():
+	if request.method == 'GET' and validate_user():
 		print("user is properly logged in")
 		return render_template('management.html')
 	if request.method == 'POST':

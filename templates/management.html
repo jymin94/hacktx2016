@@ -38,6 +38,18 @@
 		  };
 		  var app = firebase.initializeApp(config);
       var selectedMessage = null;
+
+      var cstatus = "";
+
+      function openStatusModal(){
+        console.log(cstatus);
+        $('#status').text(cstatus);
+        $('#statusModal').openModal();
+      }
+
+    
+
+
 		</script>
 
     
@@ -59,7 +71,15 @@
         <div class="modal-footer">
           <a href="" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="postUpdate()">Submit</a>
           <a href="" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="resolve()">Resolve</a>
-          <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="unresolve()">Unresolve</a>
+          <a href="" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="unresolve()">Unresolve</a>
+        </div>
+      </div>
+
+    <!-- Modal Structure -->
+      <div id="statusModal" class="modal">
+        <div class="modal-content">
+          <h4>Issue Status</h4>
+          <p id = "status"></p>
         </div>
       </div>
 
@@ -86,7 +106,7 @@
                   </div>
                 
                 <div class="row center">
-  		            <button class="btn waves-effect waves-light orange" onclick = "postTicket()">Post</button>
+  		            <button class="btn waves-effect waves-light orange" onclick ="postTicket()">Post</button>
   		          </div>
               </div>
               <div id = "unresolved-tickets"></div>
@@ -136,13 +156,14 @@
   }
 
   function postTicket(){
+    console.log("HEY WHATS UP");
            $.ajax({
             url: window.location.href,
             type: "POST",
             data: {ticket_message : $('#ticket_message').val()}
           });
           $('#ticket_message').val('');
-        }
+  };
 
 
 		Materialize.fadeInImage('#card-id');
@@ -160,12 +181,12 @@
       clickSetTracker["" + pagenameref] = new Set();
 
       var ResolvedTicket = React.createClass({
-        setInitialState: function(){
-
-        },
+        
         render: function() {
           var parent = this;
           var upvote = null;
+
+
           
             var sp = this.props.message;
             var openModalF = function(){
@@ -173,8 +194,26 @@
                 openModal();
             };
 
-            return (<li className="resolved-item collection-item"><div className="row resolved-ticket-row"><div className="col s2 number-circle-disabled" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
-            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Update</button></p></div></li>);
+            var statusFinal = this.props.status;
+            var openStatusModalF = function(){
+                  cstatus = statusFinal;
+                  openStatusModal();
+            };
+
+            return (<li className="resolved-item collection-item">
+                <div className="row resolved-ticket-row">
+                  <div className="col s2 number-circle-disabled" onClick={upvote}>
+                    <p>{this.props.count}</p>
+                  </div>
+                  <div className = "col s6 ticket-message">
+                    <p>{this.props.message}</p>
+                  </div>
+                  <p>
+                    <button className="btn waves-effect waves-light orange" onClick={openModalF}>Update</button>
+                    <button className="btn waves-effect waves-light blue" onClick={openStatusModalF}>Status</button>
+                  </p>
+                </div>
+              </li>);
           
         }
       });
@@ -197,8 +236,7 @@
                     return (<ResolvedTicket count = {n[1]['count']} message={n[0]} wasClicked={b}/>);
             });
           }
-          return (
-            <div className = "col s8 offset-s2">
+          return (<div className = "col s8 offset-s2">
              <ul className="collection with-header">
               <li className="collection-header"><h4>Resolved Tickets</h4><h5 className="header light">Sorted by priority</h5>
               <button className="btn waves-effect waves-light orange" onClick={filterOpenF}>Open</button>
@@ -219,22 +257,67 @@
           var parent = this;
           var upvote = null;
           
+          
+
+
           if (!this.props.wasClicked){
+
+            var upvote = function(){
+                console.log("I WAS CALLED WTH?");
+               $.ajax({
+                url: window.location.href + "tickets/" + parent.props.message,
+                type: "GET"});
+              clickSetTracker["" + pagenameref].add(parent.props.message);
+              $('#ticket_message').val('');
+            };
+
             var sp = this.props.message;
             var openModalF = function(){
                 selectedMessage = sp;
                 openModal();
             };
 
+            var statusFinal = this.props.status;
+            var openStatusModalF = function(){
+                  cstatus = statusFinal;
+                  openStatusModal();
+            };
 
-            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
-            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Update</button></p></div></li>);
+
+            return (<li className="collection-item">
+              <div className="row ticket-row">
+                <div className="col s2 number-circle" onClick={upvote}>
+                  <p>{this.props.count}</p>
+                </div>
+                <div className = "col s6 ticket-message">
+                  <p>{this.props.message}
+                  </p>
+                </div>
+                  <p>
+                    <button className="btn waves-effect waves-light orange" onClick={openModalF}>Update</button>
+                    <button className="btn waves-effect waves-light blue" onClick={openStatusModalF}>Status</button>
+                  </p>
+                </div>
+            </li>);
           
           } else {
 
-            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
-            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>
-            Update</button></p></div></li>);
+            return (<li className="collection-item">
+                <div className="row ticket-row">
+                  <div className="col s2 number-circle-disabled" onClick={upvote}>
+                    <p>{this.props.count}</p>
+                  </div>
+                  <div className = "col s6 ticket-message">
+                    <p>{this.props.message}</p>
+                  </div>
+                  <p>
+                    <button className="btn waves-effect waves-light orange" onClick={openModalF}>
+              Update</button>
+                    <button className="btn waves-effect waves-light blue" onClick={openStatusModalF}>Status
+                    </button>
+                  </p>
+                </div>
+              </li>);
 
           }
         }
