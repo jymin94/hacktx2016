@@ -28,9 +28,8 @@ def init_message(message, admin_response):
 	new_message[message] = init_data
 	return new_message
 
-def error_page(error_message):
-	# 404 Error render_template for that
-	return error_message
+def error_page(error_message="Error: Page not found ):"):
+	return render_template('error.html', errorMessage=error_message)
 
 def validate_user():
 	idToken = request.cookies.get('user_token')
@@ -120,6 +119,8 @@ def logout():
 
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
+	if page_name not in db.child("pages").shallow().get().val():
+		return error_page()
 	if request.method == 'GET' and validate_user():
 		print("user is properly logged in")
 		return render_template('management.html')
