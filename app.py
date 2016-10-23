@@ -100,6 +100,9 @@ def logout():
 
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
+	if validate_user():
+		print("user is properly logged in")
+		return render_template('management.html')
 	if request.method == 'POST':
 		message = request.form['ticket_message']
 		print(str(init_message(message, None)))
@@ -110,9 +113,6 @@ def page(page_name):
 @app.route("/pages/<page_name>/tickets")
 def get_tickets(page_name):
 	child = None
-	if validate_user():
-		print("user is properly logged in")
-		return render_template('management.html')
 	try :
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
