@@ -68,6 +68,7 @@ def login():
 		user =  auth.sign_in_with_email_and_password(email, password)
 		return redirect('/')
 
+# TODO logout
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
 	if request.method == 'POST':
@@ -84,8 +85,10 @@ def get_tickets(page_name):
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
 		print(e)
-		return error_page
-	return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
+		return error_page()
+	return json.dumps({"data": sorted(child.items(), key=lambda t: t[1]['count'], reverse = True) })
+	# In rememberance of our hard work below:
+	# return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>")
 def upvote(page_name, ticket_message):
@@ -95,6 +98,9 @@ def upvote(page_name, ticket_message):
 	except Exception as e:
 		print(e)
 		return error_page()
+
+# @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
+# def admin_response(page_name, ticket_message):
 
 # TODO authentication check before changing database
 
