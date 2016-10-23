@@ -29,8 +29,13 @@ def error_page(error_message):
 def validate_user():
 	idToken = request.cookies.get('user_token')
 	if idToken:
-		user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
-		return user_uid in db.child("admin").shallow().get().val()
+		try:
+			user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
+		except Exception as e:
+			print(e)
+			return False
+		else:
+			return user_uid in db.child("admin").shallow().get().val()
 	return False
 
 @app.route("/")
@@ -77,16 +82,22 @@ def login():
 	else:
 		email = request.form['email']
 		password = request.form['password']
-		user =  auth.sign_in_with_email_and_password(email, password)
-
-		redirect_page = redirect('/')
-		user_uid = user['localId']
-		if user_uid in db.child("admin").shallow().get().val():
-			pagename = db.child("admin").child(user_uid).get().val()
-			redirect_page = redirect('/pages/' + pagename)
-		response = make_response(redirect_page)
-		response.set_cookie('user_token', user['idToken'])
-		return response
+		try:
+			user =  auth.sign_in_with_email_and_password(email, password)
+		except Exception as e:
+			# TODO jonathon print('Wrong username/password. Please try again.')
+			print(e)
+			return render_template('login.html', login="Invalid")
+		else:
+			redirect_page = redirect('/')
+			user_uid = user['localId']
+			if user_uid in db.child("admin").shallow().get().val():
+				pagename = db.child("admin").child(user_uid).get().val()
+				redirect_page = redirect('/pages/' + pagename)
+			response = make_response(redirect_page)
+			response.set_cookie('user_token', user['idToken'])
+			return response
+		return redirect('/login')
 
 @app.route("/logout")
 def logout():
@@ -159,14 +170,14 @@ def admin_response(page_name, ticket_message):
 @app.route("/pages/<page_name>/resolved")
 def get_resolved(page_name):
 	child = db.child("pages").child(page_name).get().val()
-	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == True, child.items()))
-	return json.dumps({"data": resolved_tickets})
+	resolved_tickets = OrderedDict(filter(lambda x: x[1].get("resolved") == True, child.items()))
+	return json.dumps({"data": sorted(resolved_tickets.items(), key=lambda t: t[1]['count'], reverse = True) })
 	
 @app.route("/pages/<page_name>/unresolved")
 def get_unresolved(page_name):
 	child = db.child("pages").child(page_name).get().val()
-	unresolved_tickets = list(filter(lambda x: x[1].get("resolved") == False, child.items()))
-	return json.dumps({"data": unresolved_tickets})
+	unresolved_tickets = OrderedDict(filter(lambda x: x[1].get("resolved") == False, child.items()))
+	return json.dumps({"data": sorted(unresolved_tickets.items(), key=lambda t: t[1]['count'], reverse = True) })
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
 def resolve_ticket(page_name, ticket_message):
