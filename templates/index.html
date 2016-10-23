@@ -74,14 +74,14 @@
   <div class="section no-pad-bot #ef6c00 orange darken-3" id="index-banner">
     <div class="container ">
       <br><br>
-      <h2 class="header center white-text">Real-Time Issue Tracker</h2>
+      <h2 class="header center white-text">Notice Board For Events</h2>
       <div class="row center white-text">
         
       </div>
       <div class="row center">
         <div id="card-id" class="card col s8 offset-s2">
             <div class="card-content">
-              <h5 class="header light">Keep everybody up to date with issues</h5>
+              <h5 class="header light">Attending an event? Search for it here with the event name!</h5>
               <div class="input-field col s12">
 		            <input id="pagename" type="text" class="validate">
 		            <label for="pagename" >Enter in page name</label>
@@ -107,27 +107,30 @@
         
 
         <div class="col s12 m4">
-          <div class="icon-block">
-            <h5 class="center">Stay up to date</h5>
-
-            <p class="light">We keep users up to date with resolutions and organizers can make sure they fix issues in a timely matter.</p>
+          <div class="icon-block center">
+            <img src="{{ url_for('static', filename='imgs/clock-flat.png') }}"img>
           </div>
+            <h5 class="center">Stay Updated</h5>
+            <p class="light">We keep event attendees up to date with event organizers so that they are notified of the most urgent matters.</p>
         </div>
 
         <div class="col s12 m4">
-          <div class="icon-block">
+          <div class="icon-block center">
+            <img src="{{ url_for('static', filename='imgs/clipboard-list-flat.png') }}"img>
+          </div>
             <h5 class="center">Make issues more noticeable</h5>
 
-            <p class="light">PushNote removes the need to spam phone calls and emails when issues arise at an event or establishment. Just post or upvote previously posted issues. The management behind it will receive notifications of urgence based on votes.</p>
-          </div>
+            <p class="light">PushNote removes the need to spam phone calls and emails when issues arise at an event or establishment. Just post or upvote previously posted issues in order to display the most urgent issues at the top of the board. That way, the event organizers will be able to keep track of event issues.</p>
+          
         </div>
 
         <div class="col s12 m4">
-          <div class="icon-block">
-            <h5 class="center">Realtime!</h5>
-
-            <p class="light">All of these updates happen in realtime for fast responses.</p>
+          <div class="icon-block center">
+            <img src="{{ url_for('static', filename='imgs/register_icon.png') }}"img>
           </div>
+            <h5 class="center">Want to use PushNote for your Event?</h5>
+            <p class="light">Click "Signup" at the top to create an account and set up your event page!</p>
+        
         </div>
       </div>
 
