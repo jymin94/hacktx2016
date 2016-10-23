@@ -62,7 +62,7 @@ def sign_up():
 			if pagename not in db.child("pages").shallow().get().val():
 				newpage = init_message("Welcome", "Welcome... friends.")
 				print(newpage)
-				db.child("pages").child(str(pagename)).update(newpage);
+				db.child("pages").child(pagename).update(newpage);
 			newadmin = dict()
 			newadmin[user["localId"]] = pagename
 			db.child("admin").update(newadmin)
@@ -156,9 +156,33 @@ def get_resolved(page_name):
 	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == True, child.items()))
 	return json.dumps({"data": resolved_tickets})
 	
-# TODO
-# @app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
-# def resolve_ticket(page_name, ticket_message)
-	
+@app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
+def resolve_ticket(page_name, ticket_message):
+	if validate_user():
+		try:
+			db.child("pages").child(page_name).child(ticket_message).update({'resolved': True})
+		except Exception as e:
+			print(e)
+			return error_page("Error Resolving Ticket: " + ticket_message)
+		else:
+			print("Successfully resolved ticket " + ticket_message)
+			return "ok"
+	else:
+		return error_page("Pls log in")
+
+@app.route("/pages/<page_name>/tickets/<ticket_message>/unresolve")
+def unresolve_ticket(page_name, ticket_message):
+	if validate_user():
+		try:
+			db.child("pages").child(page_name).child(ticket_message).update({'resolved': False})
+		except Exception as e:
+			print(e)
+			return error_page("Error Unresolving Ticket: " + ticket_message)
+		else:
+			print("Successfully unresolved ticket " + ticket_message)
+			return "ok"
+	else:
+		return error_page("Pls log in")
+
 if __name__ == "__main__":
     app.run(debug=True)
