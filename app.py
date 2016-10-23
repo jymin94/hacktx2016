@@ -99,8 +99,17 @@ def upvote(page_name, ticket_message):
 		print(e)
 		return error_page()
 
-# @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
-# def admin_response(page_name, ticket_message):
+@app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
+def admin_response(page_name, ticket_message):
+	if request.method == 'POST':
+		response = request.form["admin_response"]
+		try:
+			db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
+		except Exception as e:
+			print(e)
+			return error_page()
+	return "ok"
+
 
 # TODO authentication check before changing database
 
