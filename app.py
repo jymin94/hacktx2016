@@ -22,6 +22,10 @@ def init_message(message, admin_response):
 	new_message[message] = init_data
 	return new_message
 
+def error_page():
+	# 404 Error render_template for that
+	return "404 Error"
+
 @app.route("/")
 @app.route("/index")
 def hello():
@@ -81,7 +85,7 @@ def get_tickets(page_name):
 	except Exception as e: 
 		print(e)
 		return error_page
-	return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)))
+	return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>")
 def upvote(page_name, ticket_message):
@@ -91,10 +95,6 @@ def upvote(page_name, ticket_message):
 	except Exception as e:
 		print(e)
 		return error_page()
-
-def error_page():
-	# 404 Error render_template for that
-	return "404 Error"
 
 # TODO authentication check before changing database
 
