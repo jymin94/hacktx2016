@@ -26,6 +26,13 @@ def error_page(error_message):
 	# 404 Error render_template for that
 	return error_message
 
+def validate_user():
+	idToken = request.cookies.get('user_token')
+	if idToken:
+		user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
+		return user_uid in db.child("admin").shallow().get().val()
+	return False
+
 @app.route("/")
 @app.route("/index")
 def hello():
@@ -97,7 +104,9 @@ def page(page_name):
 @app.route("/pages/<page_name>/tickets")
 def get_tickets(page_name):
 	child = None
-	# TODO check if authenticated --> management.html
+	if validate_user():
+		print("user is properly logged in")
+		return render_template('management.html')
 	try :
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
@@ -128,28 +137,28 @@ def upvote(page_name, ticket_message):
 @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
 def admin_response(page_name, ticket_message):
 	if request.method == 'POST':
-		idToken = request.cookies.get('user_token')
-		if idToken:
-			user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
-			if user_uid in db.child("admin").shallow().get().val():
-				response = request.form["admin_response"]
-				try:
-					db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
-				except Exception as e:
-					print(e)
-					return error_page("Error Updating Ticket: " + ticket_message)
-			else:
-				return "ur not a valid admin this is bad real bad michael jackson"
+		if validate_user():
+			response = request.form["admin_response"]
+			try:
+				db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
+			except Exception as e:
+				print(e)
+				return error_page("Error Updating Ticket: " + ticket_message)
+			# else:
+				# return "ur not a valid admin this is bad real bad michael jackson"
 		else:
-			return "pls log in"
+			return "Error: invalid user"
 	return "ok"
 
 @app.route("/pages/<page_name>/resolved")
 def get_resolved(page_name):
 	child = db.child("pages").child(page_name).get().val()
-	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == "True", child.items()))
+	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == True, child.items()))
 	return json.dumps({"data": resolved_tickets})
 	
+# TODO
+# @app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
+# def resolve_ticket(page_name, ticket_message)
 	
 if __name__ == "__main__":
     app.run(debug=True)
