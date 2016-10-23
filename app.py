@@ -28,7 +28,7 @@ def init_message(message, admin_response):
 	new_message[message] = init_data
 	return new_message
 
-def error_page(error_message="Error: Page not found ):"):
+def error_page(error_message="Error: Page not found. Please verify that your event exists and try again."):
 	return render_template('error.html', errorMessage=error_message)
 
 def validate_user():
@@ -79,6 +79,7 @@ def sign_up():
 			newadmin = dict()
 			newadmin[user["localId"]] = pagename
 			db.child("admin").update(newadmin)
+			resp = redirect('/pages/' + pagename)
 			resp.set_cookie('user_token', user['idToken'])
 		return resp
 	return "ok"
