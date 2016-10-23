@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PushNote</title>
+    <meta charset="UTF-8" />
+    <script src="https://unpkg.com/react@latest/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+    <!-- ReactFire -->
+    <script src="https://cdn.firebase.com/libs/reactfire/1.0.0/reactfire.min.js"></script>
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+    <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+
+
+    <!-- Initialize the Firebase SDK -->
+    
+		<script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
+		<script>
+		  // Initialize Firebase
+		  var config = {
+		    apiKey: "AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4",
+		    authDomain: "my-awesome-project-13077.firebaseapp.com",
+		    databaseURL: "https://my-awesome-project-13077.firebaseio.com",
+		    storageBucket: "my-awesome-project-13077.appspot.com",
+		    messagingSenderId: "199057337442"
+		  };
+		  var app = firebase.initializeApp(config);
+
+		</script>
+
+    
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+
+  <body class="#ef6c00 orange darken-3">
+    <nav class="#ef6c00 orange darken-3" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/signup">Signup</a></li>
+      </ul>
+
+      <a href="/login" data-activates="nav-mobile" class="button-collapse">Login</a>
+    </div>
+    </nav>
+    <div class="section #ef6c00 orange darken-3" style="height:100vh" id="index-banner">
+      <div class="container ">
+        <div class="row center">
+        <h5 class="header center white-text">Post Tickets</h5>
+          <div id="card-id" class="card col s10 offset-s1">
+              <div class="card-content">
+                  <div class="input-field col s12">
+      		          <input id="ticket_message" type="text" name="ticket_message" required/>
+      		          <label for="ticket_message">Ticket Message</label>
+                  </div>
+                  </div>
+                
+                <div class="row center">
+  		            <button class="btn waves-effect waves-light orange" onclick = "postTicket()">Post</button>
+  		          </div>
+              </div>
+              <div id = "unresolved-tickets"></div>
+            </div>
+        </div>
+
+      </div>
+   </div>
+
+  </body>
+  <script>
+  
+  function postTicket(){
+           $.ajax({
+            url: window.location.href,
+            type: "POST",
+            data: {ticket_message : $('#ticket_message').val()}
+          });
+          $('#ticket_message').val('');
+        }
+
+
+  
+
+
+		Materialize.fadeInImage('#card-id');
+
+  </script>
+
+    <script type="text/babel">
+
+      var pagenameref = window.location.pathname.split('/')[2];
+      var clickSetTracker = {};
+      clickSetTracker["" + pagenameref] = new Set();
+
+      var Ticket = React.createClass({
+        setInitialState: function(){
+
+        },
+        render: function() {
+          var parent = this;
+          var upvote = null;
+          if (!this.props.wasClicked){
+            var upvote = function(){
+                console.log("I WAS CALLED WTH?");
+               $.ajax({
+                url: window.location.href + "tickets/" + parent.props.message,
+                type: "GET"});
+              clickSetTracker["" + pagenameref].add(parent.props.message);
+              $('#ticket_message').val('');
+            };
+
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
+            <p>{this.props.message}</p></div></div></li>);
+          } else {
+
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
+            <p>{this.props.message}</p></div></div></li>);
+
+          }
+        }
+      });
+
+      
+
+      var TicketList = React.createClass({
+        query: function() {
+          console.log(window.location.href + "tickets");
+          $.ajax({
+            url: window.location.href + "tickets" ,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+               this.setState({data: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+              console.log("suo");
+            }.bind(this)
+          });
+        },
+        componentDidMount: function() {
+          this.query();
+        },
+        render: function() {
+          var outer = this;
+          if(this.props.data != null){
+            var tickets = this.props.data.map(function(n) {
+                    
+                    var b = clickSetTracker["" + pagenameref].has(n[0]);
+                    return (<Ticket count = {n[1]['count']} message={n[0]} wasClicked={b}/>);
+            });
+          }
+          return (
+            <div className = "col s8 offset-s2">
+             <ul className="collection with-header">
+              <li className="collection-header"><h4>Tickets</h4><h5 className="header light">Sorted by priority</h5></li>
+              {tickets}
+            </ul>
+            </div>
+          );
+        }
+      });
+
+      ReactDOM.render(<TicketList />, document.getElementById('unresolved-tickets'));
+      
+      console.log(pagenameref);
+      app.database().ref('pages/'+ pagenameref).limitToLast(10).on('value', function(dataSnapshot) {
+          $.ajax({
+              type: "GET",
+              url: window.location.href + "tickets",
+              dataType: 'json',
+              success: function (data) {
+                  ReactDOM.render(<TicketList data= {data.data}/>, document.getElementById('unresolved-tickets'));      
+              }
+          });
+          
+        });
+    </script>
+</html>
