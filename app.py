@@ -78,7 +78,13 @@ def login():
 		email = request.form['email']
 		password = request.form['password']
 		user =  auth.sign_in_with_email_and_password(email, password)
-		response = make_response(redirect('/'))
+
+		redirect_page = redirect('/')
+		user_uid = user['localId']
+		if user_uid in db.child("admin").shallow().get().val():
+			pagename = db.child("admin").child(user_uid).get().val()
+			redirect_page = redirect('/pages/' + pagename)
+		response = make_response(redirect_page)
 		response.set_cookie('user_token', user['idToken'])
 		return response
 
@@ -156,6 +162,12 @@ def get_resolved(page_name):
 	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == True, child.items()))
 	return json.dumps({"data": resolved_tickets})
 	
+@app.route("/pages/<page_name>/unresolved")
+def get_unresolved(page_name):
+	child = db.child("pages").child(page_name).get().val()
+	unresolved_tickets = list(filter(lambda x: x[1].get("resolved") == False, child.items()))
+	return json.dumps({"data": unresolved_tickets})
+
 @app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
 def resolve_ticket(page_name, ticket_message):
 	if validate_user():
