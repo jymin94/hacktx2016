@@ -2,6 +2,7 @@ from firebase import firebase
 from flask import *
 import pyrebase
 import requests
+from collections import OrderedDict
 
 config = {
 	"apiKey" : 'AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4',
@@ -71,7 +72,20 @@ def login():
 		user =  auth.sign_in_with_email_and_password(email, password)
 		return redirect('/')
 
-# @app.route("/page/{page_id}")
+@app.route("/page/<page_name>")
+def page(page_name):
+	child = None
+	try :
+		child = db.child("pages").child(page_name).get().val()
+	except Exception as e: 
+		print(e)
+		return "you fucked up"
+	# return str(OrderedDict(sorted(child.items(), key=lambda t: child[str(t)]['count'], reverse=True)))
+	# print(str(sorted(child.items(), key=lambda t:child[str(t)]['count'], reverse=True)))
+	print(str(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True))))
+	# sorted_x = sorted(x.items(), key=child[])
+	return "fuck"
+#	return str(list(db.child("pages").child(page_name).child(str(key)).get().val() for(key) in sorted(child, key=lambda t: child[str(t)]['count'], reverse=True)))
 
 # TODO authentication check before changing database
 
