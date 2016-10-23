@@ -43,7 +43,7 @@
     
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
 
   <body class="#ef6c00 orange darken-3">
@@ -65,12 +65,12 @@
               <div class="card-content">
                   <div class="input-field col s12">
       		          <input id="ticket_message" type="text" name="ticket_message" required/>
-      		          <label for="email">Ticket Message</label>
+      		          <label for="ticket_message">Ticket Message</label>
                   </div>
                   </div>
                 
                 <div class="row center">
-  		            <button class="btn waves-effect waves-light orange">Post</button>
+  		            <button class="btn waves-effect waves-light orange" onclick = "postTicket()">Post</button>
   		          </div>
               </div>
               <div id = "unresolved-tickets"></div>
@@ -82,18 +82,59 @@
 
   </body>
   <script>
+  
+  function postTicket(){
+           $.ajax({
+            url: window.location.href,
+            type: "POST",
+            data: {ticket_message : $('#ticket_message').val()}
+          });
+          $('#ticket_message').val('');
+        }
+
+
+  
+
+
 		Materialize.fadeInImage('#card-id');
+
   </script>
 
     <script type="text/babel">
 
+      var pagenameref = window.location.pathname.split('/')[2];
+      var clickSetTracker = {};
+      clickSetTracker["" + pagenameref] = new Set();
+
       var Ticket = React.createClass({
+        setInitialState: function(){
+
+        },
         render: function() {
-          return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
-          <p>{this.props.message}</p></div></div></li>);
+          var parent = this;
+          var upvote = null;
+          if (!this.props.wasClicked){
+            var upvote = function(){
+                console.log("I WAS CALLED WTH?");
+               $.ajax({
+                url: window.location.href + "tickets/" + parent.props.message,
+                type: "GET"});
+              clickSetTracker["" + pagenameref].add(parent.props.message);
+              $('#ticket_message').val('');
+            };
+
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
+            <p>{this.props.message}</p></div></div></li>);
+          } else {
+
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
+            <p>{this.props.message}</p></div></div></li>);
+
+          }
         }
       });
 
+      
 
       var TicketList = React.createClass({
         query: function() {
@@ -117,8 +158,9 @@
           var outer = this;
           if(this.props.data != null){
             var tickets = this.props.data.map(function(n) {
-                    console.log(n);
-                    return (<Ticket count = {n[1]['count']} message={n[0]}/>);
+                    
+                    var b = clickSetTracker["" + pagenameref].has(n[0]);
+                    return (<Ticket count = {n[1]['count']} message={n[0]} wasClicked={b}/>);
             });
           }
           return (
@@ -133,7 +175,7 @@
       });
 
       ReactDOM.render(<TicketList />, document.getElementById('unresolved-tickets'));
-      var pagenameref = window.location.pathname.split('/')[2];
+      
       console.log(pagenameref);
       app.database().ref('pages/'+ pagenameref).limitToLast(10).on('value', function(dataSnapshot) {
           $.ajax({
