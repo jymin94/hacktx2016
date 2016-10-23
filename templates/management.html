@@ -262,7 +262,11 @@
                   cstatus = statusFinal;
                   openStatusModal();
             };
-
+            var sp = this.props.message;
+            var openModalF = function(){
+                selectedMessage = sp;
+                openModal();
+            };
 
           if (!this.props.wasClicked){
 
@@ -275,11 +279,7 @@
               $('#ticket_message').val('');
             };
 
-            var sp = this.props.message;
-            var openModalF = function(){
-                selectedMessage = sp;
-                openModal();
-            };
+            
 
             return (<li className="collection-item">
               <div className="row ticket-row">
