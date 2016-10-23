@@ -77,11 +77,19 @@
       <div class="container ">
         <h3 class="header center white-text">Login</h3>
         <div class="row center white-text">
-          
         </div>
         <div class="row center">
           <div id="card-id" class="card col s8 offset-s2">
               <div class="card-content">
+				{% if login == "Invalid" %}
+				<div style="position: relative">
+					<span id="invalid_login" data-position="bottom">Invalid username/password. Please try again.</span>
+					<script type='text/javascript'>
+						var $toast = $("#invalid_login");
+						Materialize.toast($toast, 5000);
+					</script>
+				</div>
+				{% endif %}
                 <form action="/login" method="POST">
                   <div class="input-field col s12">
       		          <input id="username" type="text" name="email" required/>
