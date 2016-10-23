@@ -16,6 +16,12 @@ firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 db = firebase.database()
 
+def init_message(message, admin_response):
+	new_message = dict()
+	init_data = { "count" : 0, "admin_response" : admin_response }
+	new_message[message] = init_data
+	return new_message
+
 @app.route("/")
 @app.route("/index")
 def hello():
@@ -38,23 +44,9 @@ def sign_up():
 		else:
 			user =  auth.sign_in_with_email_and_password(email, password)
 			if pagename not in db.child("pages").shallow().get().val():
-				welcome = { "Welcome" : {
-							"count" : 1,
-							"admin_response": "Welcome... friends."
-						}
-					}
-				newpage = dict()
-				newpage[pagename] = welcome
+				newpage = init_message("Welcome", "Welcome... friends.")
 				print(newpage)
-				# print(newkey)
-				# newpage = { newkey : {
-				# 		"Welcome" : {
-				# 			"count" : 1,
-				# 			"admin_response": "Welcome... friends."
-				# 		}
-				# 	}
-				# }
-				db.child("pages").child(str(pagename)).update(welcome);
+				db.child("pages").child(str(pagename)).update(newpage);
 			newadmin = dict()
 			newadmin[user["localId"]] = pagename
 			db.child("admin").update(newadmin)
@@ -72,20 +64,24 @@ def login():
 		user =  auth.sign_in_with_email_and_password(email, password)
 		return redirect('/')
 
-@app.route("/page/<page_name>")
+@app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
+	if request.method == 'POST':
+		message = request.form['ticket_message']
+		print(str(init_message(message, None)))
+		db.child('pages').child(page_name).update(init_message(message, None))
+	return render_template('postpage.html')
+
+
+@app.route("/pages/<page_name>/tickets")
+def get_tickets(page_name):
 	child = None
 	try :
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
 		print(e)
 		return "you fucked up"
-	# return str(OrderedDict(sorted(child.items(), key=lambda t: child[str(t)]['count'], reverse=True)))
-	# print(str(sorted(child.items(), key=lambda t:child[str(t)]['count'], reverse=True)))
-	print(str(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True))))
-	# sorted_x = sorted(x.items(), key=child[])
-	return "fuck"
-#	return str(list(db.child("pages").child(page_name).child(str(key)).get().val() for(key) in sorted(child, key=lambda t: child[str(t)]['count'], reverse=True)))
+	return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)))
 
 # TODO authentication check before changing database
 
