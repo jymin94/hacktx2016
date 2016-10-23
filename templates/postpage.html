@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="styles.css">
   </head>
 
-  <body>
+  <body class="#ef6c00 orange darken-3">
     <nav class="#ef6c00 orange darken-3" role="navigation">
     <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
       <ul class="right hide-on-med-and-down">
@@ -73,8 +73,7 @@
   		            <button class="btn waves-effect waves-light orange">Post</button>
   		          </div>
               </div>
-              <h5 class = "white-text">Sorted Tickets</h5>
-              <div id = "unresolved-ticket-content"></div>
+              <div id = "unresolved-tickets"></div>
             </div>
         </div>
 
@@ -87,18 +86,65 @@
   </script>
 
     <script type="text/babel">
-      console.log("SUP DUDE");
-      var TicketList = React.createClass({
+
+      var Ticket = React.createClass({
         render: function() {
+          return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
+          <p>{this.props.message}</p></div></div></li>);
+        }
+      });
+
+
+      var TicketList = React.createClass({
+        query: function() {
+          console.log(window.location.href + "tickets");
+          $.ajax({
+            url: window.location.href + "tickets" ,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+               this.setState({data: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+              console.log("suo");
+            }.bind(this)
+          });
+        },
+        componentDidMount: function() {
+          this.query();
+        },
+        render: function() {
+          var outer = this;
+          if(this.props.data != null){
+            var tickets = this.props.data.map(function(n) {
+                    console.log(n);
+                    return (<Ticket count = {n[1]['count']} message={n[0]}/>);
+            });
+          }
           return (
-            <div>
-              <p>SUP DUDE</p>
+            <div className = "col s8 offset-s2">
+             <ul className="collection with-header">
+              <li className="collection-header"><h4>Tickets</h4><h5 className="header light">Sorted by priority</h5></li>
+              {tickets}
+            </ul>
             </div>
           );
         }
       });
 
-      ReactDOM.render(<TicketList />, document.getElementById('unresolved-ticket-content'));
-
+      ReactDOM.render(<TicketList />, document.getElementById('unresolved-tickets'));
+      var pagenameref = window.location.pathname.split('/')[2];
+      console.log(pagenameref);
+      app.database().ref('pages/'+ pagenameref).limitToLast(10).on('value', function(dataSnapshot) {
+          $.ajax({
+              type: "GET",
+              url: window.location.href + "tickets",
+              dataType: 'json',
+              success: function (data) {
+                  ReactDOM.render(<TicketList data= {data.data}/>, document.getElementById('unresolved-tickets'));      
+              }
+          });
+          
+        });
     </script>
 </html>
