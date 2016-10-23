@@ -29,6 +29,10 @@ def error_page(error_message):
 @app.route("/")
 @app.route("/index")
 def hello():
+	pagename = request.args.get('pagename')
+	print(pagename)
+	if pagename:
+		return redirect("/pages/" + pagename)
 	return render_template('index.html')
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -76,7 +80,7 @@ def logout():
 	resp = make_response(redirect("/"))
 	try:
 		resp.set_cookie('user_token', expires=0)
-	catch Exception as e:
+	except Exception as e:
 		print(e)
 		return error_page("Logout Unsuccessful: No logged in user found.") 
 	return resp
