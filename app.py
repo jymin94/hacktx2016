@@ -22,9 +22,9 @@ def init_message(message, admin_response):
 	new_message[message] = init_data
 	return new_message
 
-def error_page():
+def error_page(error_message):
 	# 404 Error render_template for that
-	return "404 Error"
+	return error_message
 
 @app.route("/")
 @app.route("/index")
@@ -71,6 +71,16 @@ def login():
 		response.set_cookie('user_token', user['idToken'])
 		return response
 
+@app.route("/logout")
+def logout():
+	resp = make_response(redirect("/"))
+	try:
+		resp.set_cookie('user_token', expires=0)
+	catch Exception as e:
+		print(e)
+		return error_page("Logout Unsuccessful: No logged in user found.") 
+	return resp
+
 # TODO logout
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
@@ -88,7 +98,7 @@ def get_tickets(page_name):
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
 		print(e)
-		return error_page()
+		return error_page("No Page Named: " + page_name)
 	return json.dumps({"data": sorted(child.items(), key=lambda t: t[1]['count'], reverse = True) })
 	# In rememberance of our hard work below:
 	# return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
@@ -102,14 +112,14 @@ def upvote(page_name, ticket_message):
 			return "ok"
 		except Exception as e:
 			print(e)
-			return error_page()
+			return error_page("Error Updating: " + ticket_message)
 	else:
 		try:
 			db.child("pages").child(page_name).child(ticket_message).remove()
 			return "ok"	
 		except Exception as e:
 			print(e)
-			return error_page()
+			return error_page("Error Removing Ticket: " + ticket_message)
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
 def admin_response(page_name, ticket_message):
@@ -123,7 +133,7 @@ def admin_response(page_name, ticket_message):
 					db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
 				except Exception as e:
 					print(e)
-					return error_page()
+					return error_page("Error Updating Ticket: " + ticket_message)
 			else:
 				return "ur not a valid admin this is bad real bad michael jackson"
 		else:
