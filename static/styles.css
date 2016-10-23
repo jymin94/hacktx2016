@@ -46,3 +46,12 @@
 .ticket-message{
 	vertical-align: middle;
 }
+
+.button-thing{
+	bottom: 45px; 
+	right: 24px;
+}
+
+.resolved-item {
+	background-color: #bdbdbd;
+}

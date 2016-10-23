@@ -58,6 +58,7 @@
         </div>
         <div class="modal-footer">
           <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="postUpdate()">Submit</a>
+          <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat" onclick="postUpdate()">Resolve & Submit</a>
         </div>
       </div>
 
@@ -96,16 +97,6 @@
 
   </body>
   <script>
-  
-  function postTicket(){
-          //  $.ajax({
-          //     url: window.location.href,
-          //     type: "POST",
-          //     data: {ticket_message : $('#ticket_message').val()}
-          // });
-          // $('#ticket_message').val('');
-          openModal();
-        }
 
   function openModal(){
      $('#updateModal').openModal();
@@ -116,13 +107,30 @@
      $.ajax({
               url: window.location.href + "tickets/" + selectedMessage + "/respond",
               type: "POST",
-              data: {admin_responses : $('#issue-input').val()}
+              data: {admin_response : $('#issue-input').val()}
           });
           $('#issue-input').val('');
-          $('#modal1').closeModal();
+          $('#updateModal').closeModal();
   }
 
-  
+  function resolve(){
+    //page/pagename/
+     $.ajax({
+              url: window.location.href + "tickets/" + selectedMessage + "/resolve",
+              type: "GET"
+          });
+          $('#issue-input').val('');
+          $('#updateModal').closeModal();
+  }
+
+  function postTicket(){
+           $.ajax({
+            url: window.location.href,
+            type: "POST",
+            data: {ticket_message : $('#ticket_message').val()}
+          });
+          $('#ticket_message').val('');
+        }
 
 
 		Materialize.fadeInImage('#card-id');
@@ -145,26 +153,21 @@
         render: function() {
           var parent = this;
           var upvote = null;
+          
           if (!this.props.wasClicked){
-            var upvote = function(){
-                console.log("I WAS CALLED WTH?");
-               $.ajax({
-                url: window.location.href + "tickets/" + parent.props.message,
-                type: "GET"});
-              clickSetTracker["" + pagenameref].add(parent.props.message);
-              $('#ticket_message').val('');
+            var sp = this.props.message;
+            var openModalF = function(){
+                selectedMessage = sp;
+                openModal();
             };
 
             return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
-            <p>{this.props.message}</p></div><div className = "col s4"></div></div></li>);
+            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Resolve</button></p></div></li>);
           
           } else {
 
-            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
-            <p>{this.props.message}</p></div></div>
-
-
-            </li>);
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
+            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Resolve</button></p></div></li>);
 
           }
         }
