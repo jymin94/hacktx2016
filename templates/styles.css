@@ -12,3 +12,24 @@
 .icon-block .material-icons {
 	font-size: inherit;
 }
+
+.collection-item{
+	 vertical-align: middle;
+}
+
+.ticket-row{
+	margin-bottom: 0px;
+}
+
+.number-circle {
+	border-radius: 100px;
+	width: 50px;
+	height: 50px;
+	font-weight: bold;
+	color: white;
+	background-color: #ef6c00;
+	vertical-align: middle;
+}
+.ticket-message{
+	vertical-align: middle;
+}
