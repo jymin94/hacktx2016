@@ -1,0 +1,48 @@
+/* Custom Stylesheet */
+/**
+ * Use this file to override Materialize files so you can update
+ * the core Materialize files in the future
+ *
+ * Made By MaterializeCSS.com
+ */
+
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+	font-size: inherit;
+}
+
+.collection-item{
+	 vertical-align: middle;
+}
+
+.ticket-row{
+	margin-bottom: 0px;
+}
+
+.number-circle {
+	border-radius: 100px;
+	width: 50px;
+	height: 50px;
+	font-weight: bold;
+	color: white;
+	background-color: #ef6c00;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.number-circle-disabled {
+	border-radius: 100px;
+	width: 50px;
+	height: 50px;
+	font-weight: bold;
+	color: white;
+	background-color: #bdbdbd;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.ticket-message{
+	vertical-align: middle;
+}
