@@ -18,7 +18,7 @@ db = firebase.database()
 
 def init_message(message, admin_response):
 	new_message = dict()
-	init_data = { "count" : 1, "admin_response" : admin_response }
+	init_data = { "count" : 1, "admin_response" : admin_response, "resolved" : False }
 	new_message[message] = init_data
 	return new_message
 
@@ -85,7 +85,6 @@ def logout():
 		return error_page("Logout Unsuccessful: No logged in user found.") 
 	return resp
 
-# TODO logout
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
 	if request.method == 'POST':
@@ -98,6 +97,7 @@ def page(page_name):
 @app.route("/pages/<page_name>/tickets")
 def get_tickets(page_name):
 	child = None
+	# TODO check if authenticated --> management.html
 	try :
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
@@ -144,7 +144,12 @@ def admin_response(page_name, ticket_message):
 			return "pls log in"
 	return "ok"
 
-# TODO authentication check before changing database
-
+@app.route("/pages/<page_name>/resolved")
+def get_resolved(page_name):
+	child = db.child("pages").child(page_name).get().val()
+	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == "True", child.items()))
+	return json.dumps({"data": resolved_tickets})
+	
+	
 if __name__ == "__main__":
     app.run(debug=True)
