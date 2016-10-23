@@ -28,6 +28,8 @@
     
 		<script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
 		<script>
+
+
 		  // Initialize Firebase
 		  var config = {
 		    apiKey: "AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4",
@@ -46,6 +48,7 @@
         if (password == confirm_password){
           app.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
             console.log("WASSUP");
+
               // Handle Errors here.
               var errorCode = error.code;
               var errorMessage = error.message;
@@ -63,6 +66,8 @@
   </head>
 
   <body>
+
+
     <nav class="#ef6c00 orange darken-3" role="navigation">
     <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
       <ul class="right hide-on-med-and-down">

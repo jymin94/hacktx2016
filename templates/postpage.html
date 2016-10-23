@@ -28,6 +28,16 @@
     
 		<script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
 		<script>
+
+
+      var cstatus = "";
+
+      function openModal(){
+        console.log(cstatus);
+        $('#status').text(cstatus);
+        $('#statusModal').openModal();
+      }
+
 		  // Initialize Firebase
 		  var config = {
 		    apiKey: "AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4",
@@ -47,6 +57,14 @@
   </head>
 
   <body class="#ef6c00 orange darken-3">
+        <!-- Modal Structure -->
+      <div id="statusModal" class="modal">
+        <div class="modal-content">
+          <h4>Issue Status</h4>
+          <p id = "status"></p>
+        </div>
+      </div>
+
     <nav class="#ef6c00 orange darken-3" role="navigation">
     <div class="nav-wrapper container"><a id="logo-container" href="/index" class="brand-logo">PushNote</a>
       <ul class="right hide-on-med-and-down">
@@ -104,7 +122,55 @@
 
       var pagenameref = window.location.pathname.split('/')[2];
       var clickSetTracker = {};
+      var filterRes = false;
       clickSetTracker["" + pagenameref] = new Set();
+
+      var ResolvedTicket = React.createClass({
+        
+        render: function() {
+          var parent = this;
+            var sp = this.props.status;
+            var openModalF = function(){
+                  cstatus = sp;
+                  openModal();
+            };
+            return (<li className="resolved-item collection-item"><div className="row resolved-ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
+            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Status</button></p></div></li>);
+          
+        }
+      });
+      
+      var ResolvedTicketList = React.createClass({
+        render: function() {
+          var outer = this;
+          var filterResF = function(){
+                filterRes = true;
+                queryData();
+          };
+          var filterOpenF = function(){
+                filterRes = false;
+                queryData();
+          };
+          if(this.props.data != null){
+            var tickets = this.props.data.map(function(n) {
+                    
+                    var b = clickSetTracker["" + pagenameref].has(n[0]);
+                    return (<ResolvedTicket status = {n[1]['admin_response']} count = {n[1]['count']} message={n[0]} wasClicked={b}/>);
+            });
+          }
+          return (
+            <div className = "col s8 offset-s2">
+             <ul className="collection with-header">
+              <li className="collection-header"><h4>Tickets</h4><h5 className="header light">Sorted by priority</h5>
+              <button className="btn waves-effect waves-light orange" onClick={filterOpenF}>Open</button>
+              <button className="btn waves-effect waves-light blue" onClick={filterResF}>Resolved</button>
+              </li>
+              {tickets}
+            </ul>
+            </div>
+          );
+        }
+      });
 
       var Ticket = React.createClass({
         setInitialState: function(){
@@ -113,7 +179,13 @@
         render: function() {
           var parent = this;
           var upvote = null;
+          var sp = this.props.status;
+          var openModalF = function(){
+                cstatus = sp;
+                openModal();
+          };
           if (!this.props.wasClicked){
+
             var upvote = function(){
                 console.log("I WAS CALLED WTH?");
                $.ajax({
@@ -123,50 +195,44 @@
               $('#ticket_message').val('');
             };
 
-            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
-            <p>{this.props.message}</p></div></div></li>);
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle" onClick={upvote}><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
+            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Status</button></p></div></li>);
+          
           } else {
 
-            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s8 ticket-message">
-            <p>{this.props.message}</p></div></div></li>);
+            return (<li className="collection-item"><div className="row ticket-row"><div className="col s2 number-circle-disabled"><p>{this.props.count}</p></div><div className = "col s6 ticket-message">
+            <p>{this.props.message}</p></div><p><button className="btn waves-effect waves-light orange" onClick={openModalF}>Status</button></p></div></li>);
 
           }
         }
       });
 
-      
-
       var TicketList = React.createClass({
-        query: function() {
-          console.log(window.location.href + "tickets");
-          $.ajax({
-            url: window.location.href + "tickets" ,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-               this.setState({data: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-              console.log("suo");
-            }.bind(this)
-          });
-        },
-        componentDidMount: function() {
-          this.query();
-        },
         render: function() {
           var outer = this;
+          var filterResF = function(){
+                filterRes = true;
+                queryData();
+          };
+          var filterOpenF = function(){
+                filterRes = false;
+                queryData();
+          };
+
           if(this.props.data != null){
             var tickets = this.props.data.map(function(n) {
                     
                     var b = clickSetTracker["" + pagenameref].has(n[0]);
-                    return (<Ticket count = {n[1]['count']} message={n[0]} wasClicked={b}/>);
+                    return (<Ticket count = {n[1]['count']} status = {n[1]['admin_response']} message={n[0]} wasClicked={b}/>);
             });
           }
           return (
             <div className = "col s8 offset-s2">
              <ul className="collection with-header">
-              <li className="collection-header"><h4>Tickets</h4><h5 className="header light">Sorted by priority</h5></li>
+              <li className="collection-header"><h4>Tickets</h4><h5 className="header light">Sorted by priority</h5>
+              <button className="btn waves-effect waves-light orange" onClick={filterOpenF}>Open</button>
+              <button className="btn waves-effect waves-light blue" onClick={filterResF}>Resolved</button>
+              </li>
               {tickets}
             </ul>
             </div>
@@ -174,19 +240,40 @@
         }
       });
 
-      ReactDOM.render(<TicketList />, document.getElementById('unresolved-tickets'));
       
-      console.log(pagenameref);
-      app.database().ref('pages/'+ pagenameref).limitToLast(10).on('value', function(dataSnapshot) {
-          $.ajax({
-              type: "GET",
-              url: window.location.href + "tickets",
-              dataType: 'json',
-              success: function (data) {
-                  ReactDOM.render(<TicketList data= {data.data}/>, document.getElementById('unresolved-tickets'));      
-              }
-          });
-          
+      function queryData(){
+          console.log("QUERIED");
+          if (filterRes){
+            console.log("QUERIED AGIAn");
+            $.ajax({
+                type: "GET",
+                url: window.location.href + "resolved",
+                dataType: 'json',
+                success: function (data) {
+                    ReactDOM.render(<ResolvedTicketList data= {data.data}/>, document.getElementById('unresolved-tickets'));      
+                }
+            });
+          } else {
+            $.ajax({
+                type: "GET",
+                url: window.location.href + "unresolved",
+                dataType: 'json',
+                success: function (data) {
+                    ReactDOM.render(<TicketList data= {data.data}/>, document.getElementById('unresolved-tickets'));      
+                }
+            });
+          }
+      }
+
+      app.database().ref('pages/'+ pagenameref).limitToLast(100).on('value', function(dataSnapshot) {
+          queryData();
+           
         });
+
+
+
+
+
+
     </script>
 </html>
