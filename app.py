@@ -116,8 +116,7 @@ def page(page_name):
 		return render_template('management.html')
 	if request.method == 'POST':
 		message = request.form['ticket_message']
-		print(str(init_message(message, None)))
-		db.child('pages').child(page_name).update(init_message(message, None))
+		db.child('pages').child(page_name).update(init_message(message, "Not yet resolved"))
 	return render_template('postpage.html')
 
 
