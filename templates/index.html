@@ -37,6 +37,12 @@
 		    messagingSenderId: "199057337442"
 		  };
 		  firebase.initializeApp(config);
+
+      function search(){
+        console.log("Hello");
+        window.location.href += "?pagename=" + $("#pagename").val();
+      }
+
 		</script>
 
     
@@ -72,8 +78,9 @@
 		            <label for="pagename" >Enter in page name</label>
 		          </div>
             </div>
+
             <div class="row center">
-		          <a href="/find/" id="find-button" class="btn-large waves-effect waves-light orange">Find The Page!</a>
+		          <button id="find-button" class="btn-large waves-effect waves-light orange" onclick="search()">Find The Page!</button>
 		        </div>
         </div>
       </div>

@@ -18,17 +18,28 @@ db = firebase.database()
 
 def init_message(message, admin_response):
 	new_message = dict()
-	init_data = { "count" : 1, "admin_response" : admin_response }
+	init_data = { "count" : 1, "admin_response" : admin_response, "resolved" : False }
 	new_message[message] = init_data
 	return new_message
 
-def error_page():
+def error_page(error_message):
 	# 404 Error render_template for that
-	return "404 Error"
+	return error_message
+
+def validate_user():
+	idToken = request.cookies.get('user_token')
+	if idToken:
+		user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
+		return user_uid in db.child("admin").shallow().get().val()
+	return False
 
 @app.route("/")
 @app.route("/index")
 def hello():
+	pagename = request.args.get('pagename')
+	print(pagename)
+	if pagename:
+		return redirect("/pages/" + pagename)
 	return render_template('index.html')
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -71,7 +82,16 @@ def login():
 		response.set_cookie('user_token', user['idToken'])
 		return response
 
-# TODO logout
+@app.route("/logout")
+def logout():
+	resp = make_response(redirect("/"))
+	try:
+		resp.set_cookie('user_token', expires=0)
+	except Exception as e:
+		print(e)
+		return error_page("Logout Unsuccessful: No logged in user found.") 
+	return resp
+
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
 def page(page_name):
 	if request.method == 'POST':
@@ -84,11 +104,14 @@ def page(page_name):
 @app.route("/pages/<page_name>/tickets")
 def get_tickets(page_name):
 	child = None
+	if validate_user():
+		print("user is properly logged in")
+		return render_template('management.html')
 	try :
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
 		print(e)
-		return error_page()
+		return error_page("No Page Named: " + page_name)
 	return json.dumps({"data": sorted(child.items(), key=lambda t: t[1]['count'], reverse = True) })
 	# In rememberance of our hard work below:
 	# return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
@@ -102,35 +125,40 @@ def upvote(page_name, ticket_message):
 			return "ok"
 		except Exception as e:
 			print(e)
-			return error_page()
+			return error_page("Error Updating: " + ticket_message)
 	else:
 		try:
 			db.child("pages").child(page_name).child(ticket_message).remove()
 			return "ok"	
 		except Exception as e:
 			print(e)
-			return error_page()
+			return error_page("Error Removing Ticket: " + ticket_message)
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
 def admin_response(page_name, ticket_message):
 	if request.method == 'POST':
-		idToken = request.cookies.get('user_token')
-		if idToken:
-			user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
-			if user_uid in db.child("admin").shallow().get().val():
-				response = request.form["admin_response"]
-				try:
-					db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
-				except Exception as e:
-					print(e)
-					return error_page()
-			else:
-				return "ur not a valid admin this is bad real bad michael jackson"
+		if validate_user():
+			response = request.form["admin_response"]
+			try:
+				db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
+			except Exception as e:
+				print(e)
+				return error_page("Error Updating Ticket: " + ticket_message)
+			# else:
+				# return "ur not a valid admin this is bad real bad michael jackson"
 		else:
-			return "pls log in"
+			return "Error: invalid user"
 	return "ok"
 
-# TODO authentication check before changing database
-
+@app.route("/pages/<page_name>/resolved")
+def get_resolved(page_name):
+	child = db.child("pages").child(page_name).get().val()
+	resolved_tickets = list(filter(lambda x: x[1].get("resolved") == True, child.items()))
+	return json.dumps({"data": resolved_tickets})
+	
+# TODO
+# @app.route("/pages/<page_name>/tickets/<ticket_message>/resolve")
+# def resolve_ticket(page_name, ticket_message)
+	
 if __name__ == "__main__":
     app.run(debug=True)
