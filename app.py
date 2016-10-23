@@ -18,7 +18,7 @@ db = firebase.database()
 
 def init_message(message, admin_response):
 	new_message = dict()
-	init_data = { "count" : 0, "admin_response" : admin_response }
+	init_data = { "count" : 1, "admin_response" : admin_response }
 	new_message[message] = init_data
 	return new_message
 
@@ -39,6 +39,7 @@ def sign_up():
 		email = request.form["email"]
 		password = request.form["password"]
 		pagename = request.form["pagename"]
+		resp = redirect('/')
 		try:
 			auth.create_user_with_email_and_password(email, password)
 		except requests.exceptions.HTTPError as e:
@@ -54,9 +55,9 @@ def sign_up():
 			newadmin = dict()
 			newadmin[user["localId"]] = pagename
 			db.child("admin").update(newadmin)
-
-		return redirect('/')
-	return "ok" 
+			resp.set_cookie('user_token', user['idToken'])
+		return resp
+	return "ok"
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -66,7 +67,9 @@ def login():
 		email = request.form['email']
 		password = request.form['password']
 		user =  auth.sign_in_with_email_and_password(email, password)
-		return redirect('/')
+		response = make_response(redirect('/'))
+		response.set_cookie('user_token', user['idToken'])
+		return response
 
 # TODO logout
 @app.route("/pages/<page_name>/", methods=["GET", "POST"])
@@ -90,26 +93,42 @@ def get_tickets(page_name):
 	# In rememberance of our hard work below:
 	# return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)), sort_keys=False)
 
-@app.route("/pages/<page_name>/tickets/<ticket_message>")
+@app.route("/pages/<page_name>/tickets/<ticket_message>", methods=["GET", "DELETE"])
 def upvote(page_name, ticket_message):
-	try:
-		count = db.child("pages").child(page_name).child(ticket_message).child("count").get().val()
-		db.child("pages").child(page_name).child(ticket_message).update({'count': count+1})
-	except Exception as e:
-		print(e)
-		return error_page()
+	if request.method == "GET":
+		try:
+			count = db.child("pages").child(page_name).child(ticket_message).child("count").get().val()
+			db.child("pages").child(page_name).child(ticket_message).update({'count': count+1})
+			return "ok"
+		except Exception as e:
+			print(e)
+			return error_page()
+	else:
+		try:
+			db.child("pages").child(page_name).child(ticket_message).remove()
+			return "ok"	
+		except Exception as e:
+			print(e)
+			return error_page()
 
 @app.route("/pages/<page_name>/tickets/<ticket_message>/respond", methods=["GET", "POST"])
 def admin_response(page_name, ticket_message):
 	if request.method == 'POST':
-		response = request.form["admin_response"]
-		try:
-			db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
-		except Exception as e:
-			print(e)
-			return error_page()
+		idToken = request.cookies.get('user_token')
+		if idToken:
+			user_uid = auth.get_account_info(idToken).get('users')[0].get('localId')
+			if user_uid in db.child("admin").shallow().get().val():
+				response = request.form["admin_response"]
+				try:
+					db.child("pages").child(page_name).child(ticket_message).update({'admin_response': response})
+				except Exception as e:
+					print(e)
+					return error_page()
+			else:
+				return "ur not a valid admin this is bad real bad michael jackson"
+		else:
+			return "pls log in"
 	return "ok"
-
 
 # TODO authentication check before changing database
 
