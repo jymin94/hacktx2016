@@ -3,6 +3,12 @@ from flask import *
 import pyrebase
 import requests
 from collections import OrderedDict
+from twilio.rest import TwilioRestClient 
+
+ACCOUNT_SID = "AC4408e56e2ae7d6e2a53cca9ffac9865a" 
+AUTH_TOKEN = "3f6dfdf42f5f1e2f7d7da02e642390f5" 
+
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
 
 config = {
 	"apiKey" : 'AIzaSyAFAM421tHTh5AWZzXvp8WBTF3TeJIaWe4',
@@ -138,6 +144,12 @@ def upvote(page_name, ticket_message):
 	if request.method == "GET":
 		try:
 			count = db.child("pages").child(page_name).child(ticket_message).child("count").get().val()
+			if(count == 7 or count == 15 or count == 25):
+				client.messages.create(
+				    to="+17138358085", 
+				    from_="+18327426436", 
+				    body="URGENT TICKET: " + ticket_message 
+				)
 			db.child("pages").child(page_name).child(ticket_message).update({'count': count+1})
 			return "ok"
 		except Exception as e:
