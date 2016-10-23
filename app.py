@@ -80,8 +80,21 @@ def get_tickets(page_name):
 		child = db.child("pages").child(page_name).get().val()
 	except Exception as e: 
 		print(e)
-		return "you fucked up"
+		return error_page
 	return json.dumps(OrderedDict(sorted(child.items(), key=lambda t: t[1]['count'], reverse=True)))
+
+@app.route("/pages/<page_name>/tickets/<ticket_message>")
+def upvote(page_name, ticket_message):
+	try:
+		count = db.child("pages").child(page_name).child(ticket_message).child("count").get().val()
+		db.child("pages").child(page_name).child(ticket_message).update({'count': count+1})
+	except Exception as e:
+		print(e)
+		return error_page()
+
+def error_page():
+	# 404 Error render_template for that
+	return "404 Error"
 
 # TODO authentication check before changing database
 
