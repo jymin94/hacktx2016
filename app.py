@@ -150,8 +150,8 @@ def upvote(page_name, ticket_message):
 			count = db.child("pages").child(page_name).child(ticket_message).child("count").get().val()
 			if(count == 7 or count == 15 or count == 25):
 				client.messages.create(
-				    to="+17138358085", 
-				    from_="+18327426436", 
+				    to="+xxxxxxxxxxxx", 
+				    from_="+xxxxxxxxxx", 
 				    body="URGENT TICKET: " + ticket_message 
 				)
 			db.child("pages").child(page_name).child(ticket_message).update({'count': count+1})
